@@ -2,6 +2,10 @@ import os
 import re
 
 WATTS_PER_BTU = 0.29307107
+GAL_PER_CUBIC_M = 264.172052
+LBS_PER_KG = 2.20462
+
+# ALL DBH UNITS ARE CM
 
 def _data_files():
     pattern = r'output__(.*)__(.*).csv'
@@ -117,10 +121,76 @@ def get_factor_for_tree(region, factor, species_codes, dbh):
 
 
 def get_energy_conserved(region, species_codes, dbh):
+    """ Get kWHs of energy conserved """
     # 1000s of BTU?
     nat_gas_kbtu = get_factor_for_tree(region, 'natural_gas', species_codes, dbh)
     nat_gas_kwh = nat_gas_btu * WATTS_PER_BTU
 
     energy_kwh = get_factor_for_tree(region, 'electricity', species_codes, dbh)
 
-    return nat_gas_watt + energy_watt
+    return nat_gas_kwh + energy_kwh
+
+def get_stormwater_management(region, species_codes, dbh):
+    """ Gallons of stormwater reduced """
+    stormwater_cubic_m = get_factor_for_tree(region,
+                                             'hydro_interception_dbh',
+                                             species_codes,
+                                             dbh)
+
+    return stormwater_cubic_m * GAL_PER_CUBIC_M
+
+def get_co2_stats(region, species_codes, dbh):
+    """ lbs per year of co2
+    provides:
+       sequestered
+       avoided
+       stored
+
+    and calculates:
+       reduced
+    """
+    def get_lbs(factor):
+        factor_value_kg = get_factor_for_tree(region, factor, species_codes, dbh)
+        return factor_value_kg * LBS_PER_KG
+
+    data = {
+        'sequestered': get_lbs('co2_sequestered'),
+        'avoided': get_lbs('co2_sequestered'),
+        'stored': get_lbs('co2_storage')
+    }
+
+    data['reduced'] = data['sequestered'] + data['avoided']
+
+    return data
+
+def get_air_quality_stats(region, species_code, dbh):
+    """ lbs per year of various air quality indicators
+    All 'annual' indicators (except for ozone, bvoc, and voc) include
+    both 'dep' and 'avoidance' factors
+
+    The 'improvement' factor is a synthesis of all of the other
+    factors
+    """
+    def get_lbs(factor):
+        factor_value_kg = get_factor_for_tree(region, factor, species_codes, dbh)
+        return factor_value_kg * LBS_PER_KG
+
+    data = {
+        'ozone': get_lbs('aq_ozone_dep'),
+        'nox': get_lbs('aq_nox_dep') +
+               get_lbs('aq_nox_avoided'),
+        'pm10': get_lbs('aq_pm10_dep') +
+                get_lbs('aq_pm10_avoided'),
+        'sox': get_lbs('aq_sox_dep') +
+               get_lbs('aq_sox_avoided')
+        'voc': get_lbs('aq_voc_avoided')
+        'bvoc': get_lbs('bvoc')
+
+    data['improvement'] = data['ozone'] +
+        data['nox'] +
+        data['pm10'] +
+        data['sox'] +
+        data['voc'] +
+        data['bvoc']
+
+    return data
