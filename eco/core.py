@@ -2,6 +2,13 @@ import os
 import re
 import itertools
 
+import sys
+import os
+
+data_base = os.path.join(
+    os.path.dirname(sys.modules['eco'].__file__),
+    'data')
+
 class Benefits(object):
     WATTS_PER_BTU = 0.29307107
     GAL_PER_CUBIC_M = 264.172052
@@ -16,7 +23,7 @@ class Benefits(object):
     def _data_files(self):
         pattern = r'output__(.*)__(.*).csv'
         matches = []
-        for datafile in os.listdir('eco/data'):
+        for datafile in os.listdir(data_base):
             match = re.match(pattern, datafile)
             if match:
                 matches.append(match)
@@ -44,7 +51,7 @@ class Benefits(object):
     def _get_data(self, region, factor):
         self._assert_valid_region(region)
 
-        data_file = 'eco/data/output__%s__%s.csv' % (region, factor)
+        data_file = os.path.join(data_base, 'output__%s__%s.csv' % (region, factor))
 
         if data_file not in self._factor_cache:
 
@@ -74,7 +81,7 @@ class Benefits(object):
         self._assert_valid_region(region)
 
         if self._species_list_cache is None:
-            data_file = 'eco/data/species_master_list.csv'
+            data_file = os.path.join(data_base, 'species_master_list.csv')
             self._species_list_cache = open(data_file).read().split('\n')
 
         sci_name = species
