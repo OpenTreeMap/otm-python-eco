@@ -18,5 +18,6 @@ setup(
     author_email='hinz.adam@gmail.com',
     url='https://github.com/azavea/eco.py',
     license=license,
+    include_package_data = True,
     packages=find_packages(exclude=('tests', 'docs'))
 )
