@@ -16,7 +16,7 @@ class Benefits(object):
     def _data_files(self):
         pattern = r'output__(.*)__(.*).csv'
         matches = []
-        for datafile in os.listdir('output'):
+        for datafile in os.listdir('data'):
             match = re.match(pattern, datafile)
             if match:
                 matches.append(match)
@@ -44,7 +44,7 @@ class Benefits(object):
     def _get_data(self, region, factor):
         self._assert_valid_region(region)
 
-        data_file = 'output/output__%s__%s.csv' % (region, factor)
+        data_file = 'data/output__%s__%s.csv' % (region, factor)
 
         if data_file not in self._factor_cache:
 
@@ -74,7 +74,7 @@ class Benefits(object):
         self._assert_valid_region(region)
 
         if self._species_list_cache is None:
-            data_file = 'output/species_master_list.csv'
+            data_file = 'data/species_master_list.csv'
             self._species_list_cache = open(data_file).read().split('\n')
 
         sci_name = species

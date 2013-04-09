@@ -1,5 +1,6 @@
 from unittest import TestCase, main
-from eco import benefits
+
+from .context import benefits
 
 class TestEco(TestCase):
 
