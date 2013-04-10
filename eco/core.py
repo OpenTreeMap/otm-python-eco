@@ -131,9 +131,8 @@ class Benefits(object):
         for i in xrange(1,len(breaks)):
             if dbh >= breaks[i-1] and \
                dbh <  breaks[i]:
-                return linear_interp(self,
-                                     breaks[i-1], values[i-1],
-                                     breaks[i], values[i], dbh)
+                return self.linear_interp(breaks[i-1], values[i-1],
+                                          breaks[i], values[i], dbh)
 
     def get_factor_for_tree(self, region, factor, species_codes, dbh):
         breaks, data = self._get_data(region, factor)
