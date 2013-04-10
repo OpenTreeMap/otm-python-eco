@@ -42,7 +42,7 @@ class TestEco(TestCase):
         # Lookup a species that doesn't exist in any region
         for region in benefits.regions:
             self.assertIsNone(benefits.lookup_species_code(
-                region, species='Ecoputius'))
+                region, genus='Ecoputius'))
 
         expected = {
             'PiedmtCLT': ('MASO', 'BDS OTHER'),
@@ -58,7 +58,7 @@ class TestEco(TestCase):
 
         for region in benefits.regions:
             codes = benefits.lookup_species_code(
-                region, species='Magnolia', genus='x soulangiana')
+                region, genus='Magnolia', species='x soulangiana')
 
             if region in expected:
                 self.assertEqual(expected[region], codes)

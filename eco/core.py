@@ -76,7 +76,7 @@ class Benefits(object):
 
         return self._factor_cache[data_file]
 
-    def lookup_species_code(self, region, species, genus=None, cultivar=None):
+    def lookup_species_code(self, region, genus, species=None, cultivar=None):
 
         self._assert_valid_region(region)
 
@@ -84,10 +84,10 @@ class Benefits(object):
             data_file = os.path.join(data_base, 'species_master_list.csv')
             self._species_list_cache = open(data_file).read().split('\n')
 
-        sci_name = species
+        sci_name = genus
 
-        if genus:
-            sci_name = '%s %s' % (sci_name, genus)
+        if species:
+            sci_name = '%s %s' % (sci_name, species)
             if cultivar:
                 sci_name = "%s '%s'" % (sci_name, cultivar)
 
