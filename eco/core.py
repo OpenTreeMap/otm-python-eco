@@ -120,7 +120,7 @@ class Benefits(object):
         # If we're before the first break assume everything
         # begins as zero
         if dbh < breaks[0]:
-            return linear_interp(self, 0.0, 0.0, breaks[0], values[0], dbh)
+            return self.linear_interp(0.0, 0.0, breaks[0], values[0], dbh)
 
         # If we're after the last break we cap the max benefit
         # to the last value
