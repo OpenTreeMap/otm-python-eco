@@ -34,15 +34,15 @@ region = 'NoEastXXX'
 # in a given region (such as "aq_nox_avoided", etc)
 factors = benefits.factors_for_region(region)
 
-species_codes = benefits.lookup_species_code(region,
+species_code = benefits.lookup_species_code(region,
                        genus='Cedrus', species='atlantica')
 
 # Get the amount of nox avoided:
 nox_avoided =
      benefits.get_factor_for_tree(region,
-                  'aq_nox_avoided', species_codes, dbh_cm)
+                  'aq_nox_avoided', [(species_code, dbh_cm)])
 
 # Get total energy saved
 kwh_saved =
-    benefits.get_energy_conserved(region, species_codes, dbh_cm)
+    benefits.get_energy_conserved(region, [(species_code, dbh_cm)])
 ```

@@ -45,15 +45,15 @@ class TestEco(TestCase):
                 region, genus='Ecoputius'))
 
         expected = {
-            'PiedmtCLT': ('MASO', 'BDS OTHER'),
-            'NoEastXXX': ('MASO', 'BDS OTHER'),
-            'CaNCCoJBK': ('MASO', 'BDS OTHER'),
-            'InlValMOD': ('MASO', 'MAGR'),
-            'SoCalCSMA': ('MASO', 'BDS OTHER'),
-            'GulfCoCHS': ('MASO', 'BDS OTHER'),
-            'CenFlaXXX': ('MASO', 'BDS OTHER'),
-            'PacfNWLOG': ('MASO', 'BDS OTHER'),
-            'InlEmpCLM': ('MASO', 'MAGR'),
+            'PiedmtCLT': 'BDS OTHER',
+            'NoEastXXX': 'BDS OTHER',
+            'CaNCCoJBK': 'BDS OTHER',
+            'InlValMOD': 'MAGR',
+            'SoCalCSMA': 'BDS OTHER',
+            'GulfCoCHS': 'BDS OTHER',
+            'CenFlaXXX': 'BDS OTHER',
+            'PacfNWLOG': 'BDS OTHER',
+            'InlEmpCLM': 'MAGR',
         }
 
         for region in benefits.regions:
@@ -79,16 +79,16 @@ class TestEco(TestCase):
         species_codes = benefits.lookup_species_code(
             region, 'cedrus', 'atlantica')
 
-        kwh = benefits.get_energy_conserved(region, species_codes, 1630.0)
+        kwh = benefits.get_energy_conserved(region, [(species_codes, 1630.0)])
         self.assertEqual(int(kwh), 1896)
 
-        gal = benefits.get_stormwater_management(region, species_codes, 1630.0)
+        gal = benefits.get_stormwater_management(region, [(species_codes, 1630.0)])
         self.assertEqual(int(gal), 3185)
 
-        co2 = benefits.get_co2_stats(region, species_codes, 1630.0)
+        co2 = benefits.get_co2_stats(region, [(species_codes, 1630.0)])
         self.assertEqual(int(co2['reduced']), 563)
 
-        aq = benefits.get_air_quality_stats(region, species_codes, 1630.0)
+        aq = benefits.get_air_quality_stats(region, [(species_codes, 1630.0)])
         self.assertEqual(int(aq['improvement']*10), 63)
 
 

@@ -11,7 +11,7 @@ with open('LICENSE') as f:
 
 setup(
     name='eco.py',
-    version='0.0.1',
+    version='0.0.2',
     description='Calculate eco benefits for urban trees',
     long_description=readme,
     author='Adam Hinz',

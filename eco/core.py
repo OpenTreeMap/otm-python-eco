@@ -103,7 +103,7 @@ class Benefits(object):
             if (len(cols) >= 3 and
                 cols[1].lower() == sci_name
                 and cols[-1] == region):
-                return (cols[0], cols[4])
+                return cols[4]
 
         return None
 
@@ -138,40 +138,53 @@ class Benefits(object):
                 return self.linear_interp(breaks[i-1], values[i-1],
                                           breaks[i], values[i], dbh)
 
-    def get_factor_for_tree(self, region, factor, species_codes, dbh):
+    def get_factor_for_trees(self, region, factor, species_codes_and_dbh):
         breaks, data = self._get_data(region, factor)
 
-        for code in species_codes:
+        # Group by species, only use first code
+        species = {}
+
+        for (scs, dbh) in species_codes_and_dbh:
+            if scs not in species:
+                species[scs] = []
+
+            species[scs].append(dbh)
+
+        f = 0
+        for code in species:
             if code in data:
-                return self.interp(breaks, data[code], float(dbh))
+                f += np.sum(np.interp(species[code], breaks, data[code]))
+            else:
+                raise Exception('Could not find data for '\
+                                'factor %s in region %s for species %s' %
+                                (factor, region, code))
 
-        raise Exception('Could not find data for '\
-                        'factor %s in region %s for species %s' %
-                        (factor, region, species_codes))
+        return f
 
-
-
-    def get_energy_conserved(self, region, species_codes, dbh):
+    def get_energy_conserved(self, region, species_codes_and_dbh):
         """ Get kWHs of energy conserved """
         # 1000s of BTU?
-        nat_gas_kbtu = self.get_factor_for_tree(region, 'natural_gas', species_codes, dbh)
+        nat_gas_kbtu = self.get_factor_for_trees(
+            region, 'natural_gas', species_codes_and_dbh)
+
         nat_gas_kwh = nat_gas_kbtu * Benefits.WATTS_PER_BTU
 
-        energy_kwh = self.get_factor_for_tree(region, 'electricity', species_codes, dbh)
+        energy_kwh = self.get_factor_for_trees(
+            region, 'electricity', species_codes_and_dbh)
+
 
         return nat_gas_kwh + energy_kwh
 
-    def get_stormwater_management(self, region, species_codes, dbh):
+    def get_stormwater_management(self, region, species_codes_and_dbh):
         """ Gallons of stormwater reduced """
-        stormwater_cubic_m = self.get_factor_for_tree(
+        stormwater_cubic_m = self.get_factor_for_trees(
             region,
             'hydro_interception',
-            species_codes,
-            dbh)
+            species_codes_and_dbh)
 
         return stormwater_cubic_m * Benefits.GAL_PER_CUBIC_M
 
-    def get_co2_stats(self, region, species_codes, dbh):
+    def get_co2_stats(self, region, species_codes_and_dbh):
         """ lbs per year of co2
         provides:
            sequestered
@@ -182,8 +195,8 @@ class Benefits(object):
            reduced
         """
         def get_lbs(factor):
-            factor_value_kg = self.get_factor_for_tree(
-                region, factor, species_codes, dbh)
+            factor_value_kg = self.get_factor_for_trees(
+                region, factor, species_codes_and_dbh)
 
             return factor_value_kg * Benefits.LBS_PER_KG
 
@@ -197,7 +210,7 @@ class Benefits(object):
 
         return data
 
-    def get_air_quality_stats(self, region, species_code, dbh):
+    def get_air_quality_stats(self, region, species_code_and_dbh):
         """ lbs per year of various air quality indicators
         All 'annual' indicators (except for ozone, bvoc, and voc) include
         both 'dep' and 'avoidance' factors
@@ -206,8 +219,8 @@ class Benefits(object):
         factors
         """
         def get_lbs(factor):
-            factor_value_kg = self.get_factor_for_tree(
-                region, factor, species_code, dbh)
+            factor_value_kg = self.get_factor_for_trees(
+                region, factor, species_code_and_dbh)
 
             return factor_value_kg * Benefits.LBS_PER_KG
 
