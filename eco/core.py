@@ -1,6 +1,7 @@
 import os
 import re
 import itertools
+import numpy as np
 
 import sys
 import os
@@ -63,14 +64,17 @@ class Benefits(object):
 
             # It is possible the dbh break set contains empty strings at the end
             # so trim ending cells while empty
-            dbh_breaks = map(float, self._strip_trailing_empty_cells(dbh_breaks_dirty))
+            dbh_breaks = np.array(
+                map(float, self._strip_trailing_empty_cells(dbh_breaks_dirty)))
+
             datarows = alldata[1:]
 
             data = {}
 
             for row in datarows:
                 if len(row[0]) > 0:
-                    data[row[0]] = map(float, self._strip_trailing_empty_cells(row[1:]))
+                    row_data = map(float, self._strip_trailing_empty_cells(row[1:]))
+                    data[row[0]] = np.array(row_data)
 
             self._factor_cache[data_file] = (dbh_breaks, data)
 
