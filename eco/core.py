@@ -62,10 +62,16 @@ class Benefits(object):
             alldata = [row.split(',') for row in open(data_file).read().split('\n')]
             dbh_breaks_dirty = alldata[0][1:]
 
+            def safe_float(f):
+                try:
+                    return float(f)
+                except:
+                    return 0.0
+
             # It is possible the dbh break set contains empty strings at the end
             # so trim ending cells while empty
             dbh_breaks = np.array(
-                map(float, self._strip_trailing_empty_cells(dbh_breaks_dirty)))
+                map(safe_float, self._strip_trailing_empty_cells(dbh_breaks_dirty)))
 
             datarows = alldata[1:]
 
@@ -73,7 +79,7 @@ class Benefits(object):
 
             for row in datarows:
                 if len(row[0]) > 0:
-                    row_data = map(float, self._strip_trailing_empty_cells(row[1:]))
+                    row_data = map(safe_float, self._strip_trailing_empty_cells(row[1:]))
                     data[row[0]] = np.array(row_data)
 
             self._factor_cache[data_file] = (dbh_breaks, data)
