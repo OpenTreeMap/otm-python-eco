@@ -2,10 +2,11 @@ from unittest import TestCase, main
 
 from .context import benefits
 
+
 class TestEco(TestCase):
 
     def test_simple_interp(self):
-        self.assertEqual(benefits.linear_interp(1,4,3,6,2), 5)
+        self.assertEqual(benefits.linear_interp(1, 4, 3, 6, 2), 5)
 
     def test_regions(self):
         regions = benefits.regions
@@ -14,24 +15,24 @@ class TestEco(TestCase):
 
     def test_factors(self):
         regions = benefits.regions
-        factors_set = { frozenset(benefits.factors_for_region(region))
-                        for region in regions }
+        factors_set = {frozenset(benefits.factors_for_region(region))
+                       for region in regions}
 
         factors_we_use = set(['electricity',
-                          'natural_gas',
-                          'hydro_interception',
-                          'co2_sequestered',
-                          'co2_avoided',
-                          'co2_storage',
-                          'aq_ozone_dep',
-                          'aq_nox_dep',
-                          'aq_nox_avoided',
-                          'aq_pm10_dep',
-                          'aq_pm10_avoided',
-                          'aq_sox_dep',
-                          'aq_sox_avoided',
-                          'aq_voc_avoided',
-                          'bvoc'])
+                              'natural_gas',
+                              'hydro_interception',
+                              'co2_sequestered',
+                              'co2_avoided',
+                              'co2_storage',
+                              'aq_ozone_dep',
+                              'aq_nox_dep',
+                              'aq_nox_avoided',
+                              'aq_pm10_dep',
+                              'aq_pm10_avoided',
+                              'aq_sox_dep',
+                              'aq_sox_avoided',
+                              'aq_voc_avoided',
+                              'bvoc'])
 
         self.assertEqual(len(factors_set), 1)
         factors = factors_set.pop()
@@ -82,7 +83,8 @@ class TestEco(TestCase):
         kwh = benefits.get_energy_conserved(region, [(species_codes, 1630.0)])
         self.assertEqual(int(kwh), 1896)
 
-        gal = benefits.get_stormwater_management(region, [(species_codes, 1630.0)])
+        gal = benefits.get_stormwater_management(region,
+                                                 [(species_codes, 1630.0)])
         self.assertEqual(int(gal), 3185)
 
         co2 = benefits.get_co2_stats(region, [(species_codes, 1630.0)])

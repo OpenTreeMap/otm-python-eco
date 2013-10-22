@@ -4,11 +4,11 @@ import itertools
 import numpy as np
 
 import sys
-import os
 
 data_base = os.path.join(
     os.path.dirname(sys.modules['eco'].__file__),
     'data')
+
 
 class Benefits(object):
     WATTS_PER_BTU = 0.29307107
@@ -34,13 +34,12 @@ class Benefits(object):
     @property
     def regions(self):
         if self._regions is None:
-            self._regions = { m.group(1) for m in self._data_files() }
+            self._regions = {m.group(1) for m in self._data_files()}
 
         return self._regions
 
     def factors_for_region(self, region):
-        return { m.group(2) for m in self._data_files() }
-
+        return {m.group(2) for m in self._data_files()}
 
     def _assert_valid_region(self, region):
         if region not in self.regions:
@@ -52,14 +51,17 @@ class Benefits(object):
     def _get_data(self, region, factor):
         self._assert_valid_region(region)
 
-        data_file = os.path.join(data_base, 'output__%s__%s.csv' % (region, factor))
+        data_file = os.path.join(data_base,
+                                 'output__%s__%s.csv' % (region, factor))
 
         if data_file not in self._factor_cache:
 
             if factor not in self.factors_for_region(region):
-                raise Exception('Invalid facor, %s, for region %s' % (factor, region))
+                raise Exception('Invalid facor, %s, for region %s'
+                                % (factor, region))
 
-            alldata = [row.split(',') for row in open(data_file).read().split('\n')]
+            alldata = [row.split(',')
+                       for row in open(data_file).read().split('\n')]
             dbh_breaks_dirty = alldata[0][1:]
 
             def safe_float(f):
@@ -68,10 +70,11 @@ class Benefits(object):
                 except:
                     return 0.0
 
-            # It is possible the dbh break set contains empty strings at the end
-            # so trim ending cells while empty
+            # It is possible the dbh break set contains empty strings at the
+            # end, so trim ending cells while empty
             dbh_breaks = np.array(
-                map(safe_float, self._strip_trailing_empty_cells(dbh_breaks_dirty)))
+                map(safe_float,
+                    self._strip_trailing_empty_cells(dbh_breaks_dirty)))
 
             datarows = alldata[1:]
 
@@ -79,7 +82,8 @@ class Benefits(object):
 
             for row in datarows:
                 if len(row[0]) > 0:
-                    row_data = map(safe_float, self._strip_trailing_empty_cells(row[1:]))
+                    row_data = map(safe_float,
+                                   self._strip_trailing_empty_cells(row[1:]))
                     data[row[0]] = np.array(row_data)
 
             self._factor_cache[data_file] = (dbh_breaks, data)
@@ -107,13 +111,12 @@ class Benefits(object):
             cols = [c.strip() for c in datarow.split(',')]
 
             if (len(cols) >= 3 and
-                cols[1].lower() == sci_name
-                and cols[-1] == region):
+               cols[1].lower() == sci_name and cols[-1] == region):
                 return cols[4]
 
         return None
 
-    def linear_interp(self, x1,y1,x2,y2,x):
+    def linear_interp(self, x1, y1, x2, y2, x):
         m = (y2 - y1) / (x2 - x1)
         b = y1 - m*x1
 
@@ -121,8 +124,8 @@ class Benefits(object):
 
     def interp(self, breaks, values, dbh):
         if len(breaks) != len(values):
-            raise Exception('break and values arrays should be the same length\n'\
-                            '%s and %s' % (breaks, values))
+            raise Exception('break and values arrays should be the same'
+                            'length\n%s and %s' % (breaks, values))
 
         if dbh < 0:
             dbh = 0.0
@@ -138,9 +141,9 @@ class Benefits(object):
             return values[-1]
 
         # Determine the interval that we're in
-        for i in xrange(1,len(breaks)):
+        for i in xrange(1, len(breaks)):
             if dbh >= breaks[i-1] and \
-               dbh <  breaks[i]:
+               dbh < breaks[i]:
                 return self.linear_interp(breaks[i-1], values[i-1],
                                           breaks[i], values[i], dbh)
 
@@ -161,7 +164,7 @@ class Benefits(object):
             if code in data:
                 f += np.sum(np.interp(species[code], breaks, data[code]))
             else:
-                raise Exception('Could not find data for '\
+                raise Exception('Could not find data for '
                                 'factor %s in region %s for species %s' %
                                 (factor, region, code))
 
@@ -177,7 +180,6 @@ class Benefits(object):
 
         energy_kwh = self.get_factor_for_trees(
             region, 'electricity', species_codes_and_dbh)
-
 
         return nat_gas_kwh + energy_kwh
 
@@ -243,11 +245,11 @@ class Benefits(object):
         }
 
         data['improvement'] = (data['ozone'] +
-            data['nox'] +
-            data['pm10'] +
-            data['sox'] +
-            data['voc'] +
-            data['bvoc'])
+                               data['nox'] +
+                               data['pm10'] +
+                               data['sox'] +
+                               data['voc'] +
+                               data['bvoc'])
 
         return data
 
