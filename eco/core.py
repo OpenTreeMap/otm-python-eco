@@ -11,7 +11,7 @@ data_base = os.path.join(
     'data')
 
 
-def _sum_ignore_none(elems):
+def sum_ignore_none(elems):
     """
     Sums an iterable, filtering out falsy values and returning None if all
     values are falsy
@@ -20,12 +20,12 @@ def _sum_ignore_none(elems):
     return sum(elems) if elems else None
 
 
-def _sum_factor_and_conversion(*args):
+def sum_factor_and_conversion(*args):
     """
     Sums a list of factor and converted factor tuples
     The converted factors may be None, in which case their sum will be None
     """
-    return map(_sum_ignore_none, zip(*args))
+    return map(sum_ignore_none, zip(*args))
 
 
 class Benefits(object):
@@ -221,7 +221,7 @@ class Benefits(object):
                 region, 'electricity', species_codes_and_dbh)
 
         return (nat_gas_kwh + energy_kwh,
-                _sum_ignore_none([nat_gas_converted, energy_converted]))
+                sum_ignore_none([nat_gas_converted, energy_converted]))
 
     def get_stormwater_management(self, region, species_codes_and_dbh):
         """ Gallons of stormwater reduced """
@@ -259,8 +259,8 @@ class Benefits(object):
             'stored': get_lbs('co2_storage')
         }
 
-        data['reduced'] = _sum_factor_and_conversion(data['sequestered'],
-                                                     data['avoided'])
+        data['reduced'] = sum_factor_and_conversion(data['sequestered'],
+                                                    data['avoided'])
 
         return data
 
@@ -275,22 +275,22 @@ class Benefits(object):
         get_lbs = partial(self._get_lbs, region, species_code_and_dbh)
         data = {
             'ozone': get_lbs('aq_ozone_dep'),
-            'nox': _sum_factor_and_conversion(get_lbs('aq_nox_dep'),
-                                              get_lbs('aq_nox_avoided')),
-            'pm10': _sum_factor_and_conversion(get_lbs('aq_pm10_dep'),
-                                               get_lbs('aq_pm10_avoided')),
-            'sox': _sum_factor_and_conversion(get_lbs('aq_sox_dep'),
-                                              get_lbs('aq_sox_avoided')),
+            'nox': sum_factor_and_conversion(get_lbs('aq_nox_dep'),
+                                             get_lbs('aq_nox_avoided')),
+            'pm10': sum_factor_and_conversion(get_lbs('aq_pm10_dep'),
+                                              get_lbs('aq_pm10_avoided')),
+            'sox': sum_factor_and_conversion(get_lbs('aq_sox_dep'),
+                                             get_lbs('aq_sox_avoided')),
             'voc': get_lbs('aq_voc_avoided'),
             'bvoc': get_lbs('bvoc')
         }
 
-        data['improvement'] = _sum_factor_and_conversion(data['ozone'],
-                                                         data['nox'],
-                                                         data['pm10'],
-                                                         data['sox'],
-                                                         data['voc'],
-                                                         data['bvoc'])
+        data['improvement'] = sum_factor_and_conversion(data['ozone'],
+                                                        data['nox'],
+                                                        data['pm10'],
+                                                        data['sox'],
+                                                        data['voc'],
+                                                        data['bvoc'])
 
         return data
 
